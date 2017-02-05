@@ -25,6 +25,7 @@ import (
 func Crop(imagefile string) {
 	_, destpath := filepath.Split(imagefile)
 	destpath = strings.Split(destpath, ".")[0]
+	os.Mkdir(destpath, 0777)
 	cropImageBy9(imagefile, destpath)
 }
 
@@ -32,13 +33,14 @@ func cropImageBy9(imagefile string, destpath string) {
 	imageAbsPath, _ := filepath.Abs(imagefile)
 	log.Println("Image ABS: " + imageAbsPath)
 	f, err := os.Open(imageAbsPath)
-	defer f.Close()
 	ProcErr("opening image", err)
 	img, _, err := image.Decode(f)
 	ProcErr("decoding image", err)
+	f, err = os.Open(imageAbsPath)
 	imgcfg, _, err := image.DecodeConfig(f)
 	ProcErr("decoding image config", err)
 	height, width := imgcfg.Height, imgcfg.Width
+	log.Printf("Image size: %d | %d", width, height)
 
 	if float64(height)/float64(width) > 1.05 || float64(width)/float64(height) > 1.05 {
 		log.Printf("Warning: image not a square, cropping it to one.")
@@ -64,6 +66,8 @@ func cropImageBy9(imagefile string, destpath string) {
 	encodeImage(cropImageXY(img, 0, height/3*2, width/3, height/3), destpath, destpath+"7.png")
 	encodeImage(cropImageXY(img, width/3, height/3*2, width/3, height/3), destpath, destpath+"8.png")
 	encodeImage(cropImageXY(img, width/3*2, height/3*2, width/3, height/3), destpath, destpath+"9.png")
+
+	f.Close()
 }
 
 func cropImageXY(img image.Image, x, y, dx, dy int) image.Image {
