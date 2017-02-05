@@ -23,5 +23,7 @@ _testmain.go
 *.test
 *.prof
 
-lucifer.jpg
+lucifer*
 lucifer/
+vendor/
+ImageGrid
